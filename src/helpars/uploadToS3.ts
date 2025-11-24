@@ -1,6 +1,7 @@
 import {
   DeleteObjectCommand,
   DeleteObjectsCommand,
+  ObjectCannedACL,
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
@@ -10,11 +11,11 @@ import httpStatus from "http-status";
 
 // Configure DigitalOcean Spaces
 const s3 = new S3Client({
-  region: config.s3.aws_s3_region,
-
+  region: "nyc3",
+  endpoint: config.s3.do_space_endpoint,
   credentials: {
-    accessKeyId: config.s3.aws_s3_access_key || "", // Ensure this is never undefined
-    secretAccessKey: config.s3.aws_s3_secret_key || "", // Ensure this is never undefined
+    accessKeyId: config.s3.do_space_accesskey || "", // Ensure this is never undefined
+    secretAccessKey: config.s3.do_space_secret_key || "", // Ensure this is never undefined
   },
 });
 
@@ -23,29 +24,30 @@ export const uploadFileToSpace = async (
   // eslint-disable-next-line no-undef
   file: Express.Multer.File
 ) => {
-  if (!config.s3.aws_s3_bucket) {
-    throw new Error("s3 bucket is not defined in the environment variables.");
+  if (!process.env.DO_SPACE_BUCKET) {
+    throw new Error(
+      "DO_SPACE_BUCKET is not defined in the environment variables."
+    );
   }
   const slug = file.originalname
     .toLowerCase()
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9\-\.]/g, "");
   const params = {
-    Bucket: config.s3.aws_s3_bucket, // Your Space name
-    Key: `files/${Date.now()}_${slug}`, // Object key in the Space
+    Bucket: process.env.DO_SPACE_BUCKET, // Your Space name
+    Key: `tourismhub/${Date.now()}_${slug}`, // Object key in the Space
     // Key: `${Date.now()}_${file.originalname}`, // Object key in the Space
     Body: file.buffer, // Use the buffer from the memory storage
     ContentType: file.mimetype,
-    // ACL: "public-read" as ObjectCannedACL, // Make the object publicly accessible
+    ACL: "public-read" as ObjectCannedACL, // Make the object publicly accessible
   };
 
   try {
     await s3.send(new PutObjectCommand(params));
     // console.log(result, "check result");
-    return `https://${config.s3.aws_s3_bucket}.s3.${config.s3.aws_s3_region}.amazonaws.com/${params.Key}`;
-    // return `https://${config.s3.do_space_bucket}.${(
-    //   config.s3.do_space_endpoint || "nyc3.digitaloceanspaces.com"
-    // ).replace("https://", "")}/${params.Key}`;
+    return `https://${config.s3.do_space_bucket}.${(
+      config.s3.do_space_endpoint || "nyc3.digitaloceanspaces.com"
+    ).replace("https://", "")}/${params.Key}`;
   } catch (error) {
     console.error("Error uploading file:", error);
     throw error;
@@ -56,13 +58,13 @@ export const deleteFromCloud = async (fileUrl: string): Promise<void> => {
   try {
     // Extract the file key from the URL
     const key = fileUrl.replace(
-      `https://${config.s3.aws_s3_bucket}.s3.${config.s3.aws_s3_region}.amazonaws.com/`,
+      `${process.env.DO_SPACE_ENDPOINT}/${process.env.DO_SPACE_BUCKET}/`,
       ""
     );
 
     // Prepare the delete command
     const command = new DeleteObjectCommand({
-      Bucket: `${config.s3.aws_s3_bucket}`,
+      Bucket: `${process.env.DO_SPACE_BUCKET}`,
       Key: key,
     });
 
@@ -88,14 +90,14 @@ export const deleteMultipleFromCloud = async (
     // Extract file keys from URLs
     const objectKeys = fileUrls.map((fileUrl) =>
       fileUrl.replace(
-        `https://${config.s3.aws_s3_bucket}.s3.${config.s3.aws_s3_region}.amazonaws.com/`,
+        `${process.env.DO_SPACE_ENDPOINT}/${process.env.DO_SPACE_BUCKET}/`,
         ""
       )
     );
 
     // Prepare the delete command for multiple objects
     const command = new DeleteObjectsCommand({
-      Bucket: config.s3.aws_s3_bucket!,
+      Bucket: process.env.DO_SPACE_BUCKET!,
       Delete: {
         Objects: objectKeys.map((Key) => ({ Key })),
       },

@@ -35,7 +35,6 @@ const loginUser = async (payload: { email: string; password: string }) => {
   const accessToken = jwtHelpers.generateToken(
     {
       id: userData.id,
-
       firstName: userData.firstName,
       lastName: userData.lastName,
       email: userData.email,
@@ -64,6 +63,27 @@ const loginUser = async (payload: { email: string; password: string }) => {
   };
 };
 
+const register = async (payload: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}) => {
+  const isExist = await prisma.user.findUnique({
+    where: { email: payload.email },
+  });
+  if (isExist) {
+    throw new ApiError(httpStatus.CONFLICT, "email already used");
+  }
+  if (payload.password) {
+    payload.password = await bcrypt.hash(payload.password, 12);
+  }
+
+  const newUser = await prisma.user.create({ data: payload });
+  return { message: "register success" };
+};
+
 export const AuthServices = {
   loginUser,
+  register,
 };

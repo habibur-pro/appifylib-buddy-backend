@@ -41,10 +41,10 @@ export default {
   },
 
   s3: {
-    aws_s3_region: process.env.AWS_S3_REGION,
-    aws_s3_access_key: process.env.AWS_S3_ACCESS_KEY,
-    aws_s3_secret_key: process.env.AWS_S3_SECRET_KEY,
-    aws_s3_bucket: process.env.AWS_S3_BUCKET,
+    do_space_endpoint: process.env.DO_SPACE_ENDPOINT,
+    do_space_accesskey: process.env.DO_SPACE_ACCESS_KEY,
+    do_space_secret_key: process.env.DO_SPACE_SECRET_KEY,
+    do_space_bucket: process.env.DO_SPACE_BUCKET,
   },
   ai_api_key: process.env.AI_API_KEY,
 };
