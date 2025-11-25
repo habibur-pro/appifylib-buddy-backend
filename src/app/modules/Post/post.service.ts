@@ -20,7 +20,10 @@ const createPost = async (payload: Post) => {
   return { message: "new post created successfully" };
 };
 const getMyAllPost = async (userId: string) => {
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: { likes: true },
+  });
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "user not found!");
   }
@@ -38,7 +41,24 @@ const feed = async (queryParams: Record<string, any>) => {
       .sort()
       .include({
         likes: true,
-        comments: true,
+        comments: {
+          include: {
+            replies: {
+              include: { likes: true },
+            },
+            likes: {
+              select: {
+                user: {
+                  select: {
+                    firstName: true,
+                    lastName: true,
+                    photo: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       })
       .paginate()
       .execute();
@@ -63,6 +83,7 @@ const likeOnPost = async (postId: string, userId: string) => {
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "user not found!");
   }
+  console.log({ post, user });
   const like = await prisma.like.findFirst({ where: { postId, userId } });
   if (like) {
     await prisma.like.delete({ where: { id: like.id } });
@@ -98,4 +119,5 @@ export const PostService = {
   createPost,
   getMyAllPost,
   commentOnPost,
+  likeOnPost,
 };

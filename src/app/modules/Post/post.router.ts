@@ -15,6 +15,8 @@ router.post(
   fileUploaderCloud.upload.single("thumbnail"),
   parseBodyData,
   PostController.createPost
-);  
+);
+router.post("/:id/comment", auth(), PostController.commentOnPost);
+router.post("/:id/like", auth(), PostController.likeOnPost);
 
 export const PostRouter = router;

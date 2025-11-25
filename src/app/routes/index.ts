@@ -4,6 +4,7 @@ import { AuthRoutes } from "../modules/Auth/auth.routes";
 
 import { imageRoutes } from "../modules/Image/Image.route";
 import { PostRouter } from "../modules/Post/post.router";
+import { CommentRouter } from "../modules/Comment/comment.router";
 
 const router = express.Router();
 
@@ -20,6 +21,10 @@ const moduleRoutes = [
   {
     path: "/posts",
     route: PostRouter,
+  },
+  {
+    path: "/comments",
+    route: CommentRouter,
   },
 ];
 

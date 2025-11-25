@@ -15,8 +15,9 @@ const replayOnPostComment = async (
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "user not found!");
   }
+  console.log({ comment, user });
   const parentComment = await prisma.comment.findUnique({
-    where: { id: payload.parentCommentId },
+    where: { id: commentId },
   });
   if (!parentComment) {
     throw new ApiError(httpStatus.NOT_FOUND, "parent comment not found!");

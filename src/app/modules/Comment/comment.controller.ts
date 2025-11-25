@@ -8,6 +8,7 @@ import { CommentService } from "./comment.service";
 const replayOnPostComment = catchAsync(async (req: Request, res: Response) => {
   const commentId = req.params.id;
   const userId = req.user.id;
+  console.log({ commentId, userId });
   const result = await CommentService.replayOnPostComment(
     commentId,
     userId,

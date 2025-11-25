@@ -41,10 +41,11 @@ export default {
   },
 
   s3: {
-    do_space_endpoint: process.env.DO_SPACE_ENDPOINT,
-    do_space_accesskey: process.env.DO_SPACE_ACCESS_KEY,
-    do_space_secret_key: process.env.DO_SPACE_SECRET_KEY,
-    do_space_bucket: process.env.DO_SPACE_BUCKET,
+    r2_endpoint: process.env.R2_ENDPOINT,
+    r2_access_id: process.env.R2_ACCESS_ID,
+    r2_secret_key: process.env.R2_SECRET_KEY,
+    r2_bucket: process.env.R2_BUCKET,
+    r2_public_url: process.env.R2_PUBLIC_URL,
   },
   ai_api_key: process.env.AI_API_KEY,
 };
